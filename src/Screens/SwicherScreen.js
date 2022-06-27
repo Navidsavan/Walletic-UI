@@ -29,7 +29,7 @@ const SwicherScreen = () => {
           } else {
             nav.navigate('Auth');
             AsyncStorage.clear().then(() => {
-              consle.log('storate cleared successfully');
+              console.log('storate cleared successfully');
             });
           }
         } else {

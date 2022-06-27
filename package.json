@@ -31,6 +31,7 @@
     "react-native-cli": "^2.0.1",
     "react-native-country-flag": "^1.1.6",
     "react-native-flip": "^0.2.2",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.1.1",
     "react-native-icon": "^0.2.10",
     "react-native-ionicons": "^4.6.5",
@@ -43,13 +44,16 @@
     "react-native-responsive-fontsize": "^0.5.1",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.1",
-    "react-native-share": "^7.3.5",
+    "react-native-share": "^7.6.4",
     "react-native-svg": "^12.1.1",
+    "react-native-sweet-alert": "^3.5.0",
     "react-native-vector-icons": "^9.0.0",
+    "react-native-view-shot": "^3.3.0",
     "react-navigation-stack": "^2.10.4",
     "react-redux": "^7.2.6",
     "redux": "^4.1.2",
-    "redux-thunk": "^2.4.1"
+    "redux-thunk": "^2.4.1",
+    "socket.io-client": "^4.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

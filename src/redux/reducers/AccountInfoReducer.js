@@ -13,6 +13,15 @@ export default AccountInfo = (state = intialState, action) => {
     console.log("blance subtracted", accountData)
     return {...state, accountData: action.payload};
   }
+  else if(action.type == 'update'){
+  //   console.log(action.payload, "reducers")
+  
+  //  console.log([state.accountData.balance], 'state in reducer')
+  //  state.accountData.balance = action.payload;
+    
+    return state;
+  }
+
   return state;
 
 };

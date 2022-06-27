@@ -34,4 +34,9 @@ export const fetchBlanceInfo = (userId, token) => {
    };
   };
 
-  
+  export const updateBalance=(result)=>{
+    console.log(result,"action creator")
+    return {
+      type: "update", payload: result
+    }
+  }

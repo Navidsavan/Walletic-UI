@@ -1,5 +1,5 @@
 
-import {ToastAndroid, View,  Text,  StyleSheet, Dimensions, Button, Modal, Pressable,Image, TouchableOpacity} from 'react-native'
+import {ToastAndroid, View,  Text,  StyleSheet, Dimensions,Alert, Button, Modal, Pressable,Image, TouchableOpacity} from 'react-native'
 import {useSelector, useDispatch} from 'react-redux'
 import {onReadSuccess, ModalToggle} from  '../redux/actions/QrActions';
 import {TransferByQR} from '../redux/actions/TransactionsActions'
@@ -34,9 +34,27 @@ const QrDataScreen = (props) => {
         }).then((req, res) => {
             console.log(res)
             //  ToastAndroid.SHORT(res.message)
+            Alert.alert(
+                `Transfer Successfully`,
+                res.message,
+                [
+                 
+                  { text: "OK", onPress: () => console.log("OK Pressed") }
+                ]
+              );
+              
+             
         }).catch((err) => {
             console.log(err.message)
             // ToastAndroid.SHORT(err.message)
+            Alert.alert(
+                err.message,
+                
+                [
+                 
+                  { text: "OK", onPress: () => console.log("OK Pressed") }
+                ]
+              );
         }); 
     }
    

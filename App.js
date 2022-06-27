@@ -16,6 +16,7 @@ import color from './src/colors/colors';
 import AccountInfo from './src/redux/reducers/AccountInfoReducer';
 import receiverInformation from './src/redux/reducers/TransferInfoReducer'
 import HomeScreen from './src/Screens/App/HomeScreen';
+import bankStatements from './src/redux/reducers/StatementsReducer'
 
 //import store1 from './Playground/Redux/Store' // pg
 
@@ -28,6 +29,7 @@ const reducers = combineReducers({
   QRCodeGenerationReducer,
   AccountInfo,
   receiverInformation,
+  bankStatements
 });
 const store = createStore(reducers, applyMiddleware(thunk));
 

@@ -23,8 +23,11 @@ import Icon from 'react-native-ionicons';
 import {RFPercentage, RFValue} from 'react-native-responsive-fontsize';
 import HomeFeatures from '../../Components/HomeFeatures';
 import { useBackHandler, exitApp } from '@react-native-community/hooks'
-import {fetchBlanceInfo} from "../../redux/actions/blanceInfoActions"
+import {fetchBlanceInfo, updateBalance} from "../../redux/actions/blanceInfoActions"
 import CardFlip from 'react-native-card-flip';
+import { clockRunning } from 'react-native-reanimated';
+import {io} from "socket.io-client";
+import {phoneVerfication} from '../../redux/actions/AuthConstants';
 
 const HomeScreen = props => {
   // for testing purpose
@@ -32,6 +35,8 @@ const HomeScreen = props => {
   const state = useSelector(state => state); 
   const accountAllData =useSelector(state=>state.AccountInfo.accountData)
   const [accountInfoModalVisible, setAccountInfoModalVisible] = useState(false);
+  const [socketBalance, setScoketBalance ]=useState(null);
+  console.log("socket balance is:" ,socketBalance)
   // actual
   const flipcard =useRef();
   const nav = useNavigation();
@@ -50,6 +55,21 @@ const HomeScreen = props => {
       }),
     );
   };
+// //////////////////////////////////////// updated blance /////////////////////////////
+// useEffect(() => {
+//   const socket = io("http://10.30.0.154:3000");
+   
+//   socket.on("connect", () => {
+//     console.log(socket.id, 'socket client');
+    
+//     socket.emit("user_id", {user_id: 6})
+//     socket.on("data", (result)=> {
+//         console.log("socket blance updated",result)
+//         dispatch(updateBalance(result));
+//     }
+//   )
+//   })
+//   })
 
   ///////////////////////Back handler to handler back button press///////////////////
   const backActionHandler = () => {
@@ -79,7 +99,19 @@ const HomeScreen = props => {
 
 
 console.log(accountAllData)
-
+/////////////////////////////////////// Statement hamdler ///////////////////////////////
+const statementPressHandler=()=>{
+  AsyncStorage.getItem('user_data')
+  .then(jsonValue => {
+    if (jsonValue != null) {
+      jsonValue = JSON.parse(jsonValue);
+      let userId=jsonValue.user_id
+     props.navigation.navigate('statements',{userId})
+     
+    }}
+    )  
+  
+}
   return (
     <View style={[styles.container]}>
       {/*//////////////////////////////// Account info modal //////////////////////////////////////////// */}
@@ -129,7 +161,7 @@ console.log(accountAllData)
 
                             <TouchableOpacity style={styles.modalClossButton}
                             onPress={()=>setAccountInfoModalVisible(false)}>
-                              <Text style={[styles.modalLabel,{color:"white"}]}>Close</Text>
+                              <Text style={[styles.modalLabel,{color:"black"}]}>Close</Text>
                             </TouchableOpacity>
                        </View>
                       </View>
@@ -214,7 +246,7 @@ console.log(accountAllData)
                 </TouchableOpacity>
               </View>
               <View style={styles.transactionContainer}>
-              <TouchableOpacity onPress={()=> props.navigation.navigate('statements')} style={styles.infoButtons}>
+              <TouchableOpacity onPress={statementPressHandler} style={styles.infoButtons}>
 
                   <Text style={styles.cartButtonText}>View Statements</Text>
                 </TouchableOpacity>
@@ -227,9 +259,9 @@ console.log(accountAllData)
       </View>
       <View style={[styles.featuresContainer,{opacity: accountInfoModalVisible?0.5:1}]}>
         <HomeFeatures
-          onTransferPress={() => props.navigation.navigate('transferForm')}
+          onTransferPress={() => props.navigation.navigate('transferForm', {type: "wallet"})}
           onBillPress={()=>ToastAndroid.show("Available Soon", ToastAndroid.SHORT)}
-          onBankPress={()=>ToastAndroid.show("Available Soon", ToastAndroid.SHORT)}
+          onBankPress={() => props.navigation.navigate('transferForm',{type: "bank"})}
         />
       </View>
     </View>
@@ -386,7 +418,7 @@ modalContainer:{
   alignSelf:'center'
 },
 modalBodyContainer:{
-  backgroundColor:"#E7E2DD",
+  backgroundColor:color.primary,
   marginTop:50,
   width:'90%',
   justifyContent:'center',
@@ -411,14 +443,14 @@ modalTitle:{
   textAlign:'center',
   fontSize:RFValue(18),
   fontWeight:'bold',
-  color:"#270667" ,
+  color:"white" ,
   paddingBottom:20
 
 },
 
 modalLabel:{
   fontSize:RFValue(13),
-  color:'#270667',
+  color:'white',
   fontWeight:"900"
 },
 infotextContainer:{
@@ -429,13 +461,13 @@ paddingLeft:20,
 modalText:{
   fontSize: RFValue(16),
   paddingLeft:5,
-  color:color.primary
+  color:"white"
 },
 modalClossButton:{
   justifyContent:'center',
   alignItems:'center',
   alignSelf:'center',
-  backgroundColor:color.primary,
+  backgroundColor:"white",
   borderRadius:30,
   paddingVertical: 10,
   marginTop:10,

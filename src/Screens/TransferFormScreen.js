@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState,useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, TouchableWithoutFeedback, Modal, Keyboard, ScrollView, Image, Alert, ActivityIndicator } from "react-native";
 //import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon from "react-native-ionicons";
@@ -7,27 +7,49 @@ import color from "../colors/colors";
 import LottieView from 'lottie-react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useDispatch, useSelector } from 'react-redux';
-import { TransferAmount, ConfirmTransfer } from "../redux/actions/TransactionsActions";
+import { TransferAmount, ConfirmTransfer, BankTransfer } from "../redux/actions/TransactionsActions";
 import TransferModal from "../Components/TransferModal";
 import { transferVarification } from '../redux/actions/AuthConstants';
 import CustomAlert from "../Components/CustomAlert";
+import { updateBalance } from "../redux/actions/blanceInfoActions";
+import {io} from "socket.io-client";
+
+
+
 const TransferFormScreen = (props) => {
   const dispatch = useDispatch();
-
+  let  type=props.route.params.type;
   const receiverInfo = useSelector(state => state.receiverInformation.receiverData)
   const senderData =useSelector(state=>state.AccountInfo.accountData)
   console.log("sender data is: ", senderData)
 
+  //////////////////////////////////////// updated blance /////////////////////////////
+useEffect(() => {
+  const socket = io("http://10.30.0.154:3000");
+   
+  socket.on("connect", () => {
+    console.log(socket.id, 'socket client');
+    
+    socket.emit("user_id", {user_id: 6})
+    socket.on("data", (result)=> {
+        console.log("socket blance updated",result)
+        dispatch(updateBalance(result));
+    }
+  )
+  })
+  })
 
+   console.log(type)
   ////////////////////// component States /////////////////////////////////////
-
+  const [bank, setBank] = useState('');
   const [purpose, setPurpose] = useState('Select');
   const [accountNo, setAccountNo] = useState('');
   const [amount, setAmount] = useState('');
   const [loading, setLoading] = useState(false);
+  
   const [transferModalVisible, setTransferModalVisible] = useState(true)
 
-
+console.log(bank)
 
   const pickerRef = useRef();
 
@@ -45,7 +67,9 @@ const TransferFormScreen = (props) => {
   }
   /////////////////////////////////////// senHandler ////////////////////////////////////////////////
   const sendHandler = async () => {
-    if (!isValidAccountNo(accountNo) || !isValidAmount(amount) || purpose == "Select") {
+    let  sender_id=senderData.account_id
+   let  bank_id=bank
+    if (!isValidAccountNo(accountNo) || !isValidAmount(amount)) {
       Alert.alert(
         "Invalid Data!",
         "Please enter valid data and try again",
@@ -58,14 +82,17 @@ const TransferFormScreen = (props) => {
     else {
       try {
         // setLoading(true);
+       
         const status = await dispatch(
           TransferAmount(accountNo, amount, purpose)
 
         );
+        
+         
 
-        if (status) {
-          setLoading(false);
-        }
+      
+
+       
       } catch (err) {
         setLoading(false);
         return Alert.alert('Transfer Failed!', err.message, [
@@ -75,6 +102,41 @@ const TransferFormScreen = (props) => {
 
     }
   }
+   /////////////////////////////////////// bankTransferHandler ////////////////////////////////////////////////
+   const bankTransferHandler = async () => {
+    let  sender_id=senderData.account_id
+   
+    if (!isValidAccountNo(accountNo) || !isValidAmount(amount)) {
+      Alert.alert(
+        "Invalid Data!",
+        "Please enter valid data and try again",
+        [
+
+          { text: "OK", onPress: () => console.log("OK Pressed") }
+        ]
+      );
+    }
+    else {
+      try {
+        // setLoading(true);
+        console.log("bank api called")
+          const bankStatus = await dispatch(
+            BankTransfer(sender_id, bank, amount)
+          )
+
+      
+
+       
+      } catch (err) {
+        setLoading(false);
+        return Alert.alert('Transfer Failed!', err.message, [
+          { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ]);
+      }
+
+    }
+  }
+  
   ////////////////////////////////////// transferCancelHandler  ////////////////////////////////
   const transferCancelHandler = async () => {
     setTransferModalVisible(false);
@@ -163,6 +225,24 @@ const TransferFormScreen = (props) => {
 
         <View style={styles.formContainer}>
           <ScrollView showsVerticalScrollIndicator={false}>
+            {type==="bank"?
+            <>
+          <Text style={styles.inputLabel}>Bank</Text>
+          <View style={styles.dropDownStyle}>
+              <Picker
+                ref={pickerRef}
+                mode='dropdown'
+                selectedValue={bank}
+                onValueChange={(itemValue, itemIndex) => setBank(itemValue)}>
+                <Picker.Item label="Select Bank" value="Select" color="gray" paddingHorizontal={20} />
+                <Picker.Item label="Meezan Bank" value={1} />
+                <Picker.Item label="United Bank Limited" value={3} />
+                <Picker.Item label="National Bank of Pakistan" value={4} />
+               
+              </Picker>
+
+            </View>
+              </>:null}
             <Text style={styles.inputLabel}>Receiver Account  Number</Text>
             <View style={[styles.inputView, {
               borderWidth: 1, borderColor: !isValidAccountNo(accountNo) && accountNo.length > 0 ? "red" : "silver", borderTopRightRadius: 0,
@@ -218,14 +298,22 @@ const TransferFormScreen = (props) => {
               </Picker>
 
             </View>
-
+            {type==="wallet"?
             <TouchableOpacity style={styles.sendButton} onPress={sendHandler}>
               {loading ?
                 <ActivityIndicator size="small" color="white" /> :
 
                 <Text style={styles.sendText}>Send</Text>
               }
-            </TouchableOpacity>
+            </TouchableOpacity>:
+           
+            <TouchableOpacity style={styles.sendButton} onPress={bankTransferHandler}>
+              {loading ?
+                <ActivityIndicator size="small" color="white" /> :
+
+                <Text style={styles.sendText}>Send</Text>
+              }
+            </TouchableOpacity>}
           </ScrollView>
         </View>
 
